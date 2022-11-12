@@ -1,0 +1,29 @@
+version: "3"
+services:
+  postgres-app:
+    image: postgres:alpine
+    ports:
+      - "5433:5432"
+    expose:
+      - 5433
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=person_database
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+#      - ./postgres-data:/var/lib/postgresql/data
+      # copy the sql script to create tables
+      - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./sql/populate_tables.sql:/docker-entrypoint-initdb.d/populate_tables.sql
+
+
+  person-app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-app
+
+volumes:
+  pgdata:
